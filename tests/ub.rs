@@ -9,24 +9,23 @@ struct B;
 #[test]
 fn ub_test(){
     let mut world = World::new();
-    let mut entity_a = Entity::<A>::new();
-    let mut entity_b = Entity::<B>::new();
+    let mut entity_a = Entity::new();
+    let mut entity_b = Entity::new();
 
     entity_a.add_component(40);
+    entity_a.add_component("cos".to_string());
     entity_b.add_component(80);
 
     world.add_entity(entity_a);
     world.add_entity(entity_b);
 
-    let query = <(&mut Entity<A>, &mut Entity<B>)>::query();
+    let query = <(&mut i32, &String)>::query();
 
-    for (entity_a, entity_b) in query.iter(&world){
-        (*entity_a.get_mut::<i32>().unwrap()) *= 2;
-        (*entity_b.get_mut::<i32>().unwrap()) *= 2;
+    for (number, _) in query.iter(&world){
+        *number *= 2;
     }
 
-    for (entity_a, entity_b) in query.iter(&world){
-        println!("{}", entity_a.get::<i32>().unwrap());
-        println!("{}", entity_b.get::<i32>().unwrap());
+    for (number, string) in query.iter(&world){
+        println!("{}", string);
     }
 }

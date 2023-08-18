@@ -16,9 +16,12 @@ impl <'a, T: Queryable<'a, Item = T>>Query<'a, T>{
 
     pub fn iter(&self, world: &'a World) -> impl IntoIterator<Item = T>{
         let mut query_items = Vec::new();
-        if let Some(item) = T::fetch(world){
-            query_items.push(item)
-        }
+        world.entities.iter().for_each(|entity| {
+            if let Some(item) = T::fetch(entity){
+                query_items.push(item)
+            }
+        });
+        
         query_items
     }
 }
@@ -27,30 +30,30 @@ pub trait Queryable<'a>{
     type Item;
     fn query() -> Query<'a, Self> where Self: Sized;
 
-    fn fetch(world: &'a World) -> Option<Self::Item>;
+    fn fetch(entity: &'a Entity) -> Option<Self::Item>;
 }
 
-impl <'a, T: 'static>Queryable<'a> for &Entity<T>{
-    type Item = &'a Entity<T>;
+impl <'a, T: 'static>Queryable<'a> for &T{
+    type Item = &'a T;
 
     fn query() -> Query<'a, Self> where Self: Sized {
         Query::new()
     }
 
-    fn fetch(world: &'a World) -> Option<Self::Item>{
-        world.get::<Entity<T>>()
+    fn fetch(entity: &'a Entity) -> Option<Self::Item>{
+        entity.get::<T>()
     }
 }
 
-impl <'a, T: 'static>Queryable<'a> for &mut Entity<T>{
-    type Item = &'a mut Entity<T>;
+impl <'a, T: 'static>Queryable<'a> for &mut T{
+    type Item = &'a mut T;
 
     fn query() -> Query<'a, Self> where Self: Sized {
         Query::new()
     }
 
-    fn fetch(world: &'a World) -> Option<Self::Item>{
-        unsafe{world.get_mut::<Entity<T>>()}
+    fn fetch(entity: &'a Entity) -> Option<Self::Item>{
+        unsafe{entity.get_mut::<T>()}
     }
 }
 
@@ -65,7 +68,7 @@ where
         Query::new()
     }
 
-    fn fetch(world: &'a World) -> Option<Self::Item>{
-        Some((T0::fetch(world)?, T1::fetch(world)?))
+    fn fetch(entity: &'a Entity) -> Option<Self::Item>{
+        Some((T0::fetch(entity)?, T1::fetch(entity)?))
     }
 }
