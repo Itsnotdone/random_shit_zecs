@@ -16,12 +16,8 @@ impl <'a, T: Queryable<'a, Item = T>>Query<'a, T>{
 
     pub fn iter(&self, world: &'a World) -> impl IntoIterator<Item = T>{
         let mut query_items = Vec::new();
-        unsafe{
-            (*world.entities.get()).iter().for_each(|_entity| {
-                if let Some(item) = T::fetch(world){
-                    query_items.push(item)
-                }
-            });
+        if let Some(item) = T::fetch(world){
+            query_items.push(item)
         }
         query_items
     }

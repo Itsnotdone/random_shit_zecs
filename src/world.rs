@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::any::{Any, TypeId};
 use std::cell::UnsafeCell;
 pub struct World{
     pub entities: UnsafeCell<Vec<Box<dyn Any>>>
@@ -12,6 +12,7 @@ impl World{
     }
 
     pub fn add_entity(&mut self, entity: impl Any + 'static){
+        
         unsafe{(*self.entities.get()).push(Box::new(entity))}
     }
 
@@ -20,6 +21,8 @@ impl World{
     }
 
     pub unsafe fn get_mut<C: 'static>(&self) -> Option<&mut C>{
+        
+        println!("{:?}", TypeId::of::<C>());
         (*self.entities.get()).iter_mut().find_map(|component| {component.downcast_mut::<C>()})
     }
 }
